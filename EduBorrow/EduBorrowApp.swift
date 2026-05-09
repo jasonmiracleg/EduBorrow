@@ -5,28 +5,50 @@
 //  Created by Jason Miracle Gunawan on 09/05/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct EduBorrowApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @StateObject private var authViewModel =
+        AuthenticationViewModel()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authViewModel.isAuthenticated {
+                ContentView()
+            } else {
+                AuthenticationView(
+                    viewModel: authViewModel
+                )
+                .onAppear {
+                    do {
+                        let container = try ModelContainer(
+                            for:
+                                User.self,
+                            Room.self,
+                            Equipment.self,
+                            Borrowing.self,
+                            BorrowingEquipment.self
+                        )
+
+                        let context = ModelContext(container)
+
+                        SeederService.seedUsers(
+                            context: context
+                        )
+                    } catch {
+                        print(error)
+                    }
+                }
+            }
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(for: [
+            User.self,
+            Room.self,
+            Equipment.self,
+            Borrowing.self,
+            BorrowingEquipment.self,
+        ])
     }
 }

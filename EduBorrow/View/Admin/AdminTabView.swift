@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+
 struct AdminTabView: View {
     var body: some View {
         TabView {
@@ -19,6 +20,12 @@ struct AdminTabView: View {
             ApprovalView()
                 .tabItem {
                     Label("Approval", systemImage: "checkmark.seal.fill")
+                }
+
+            // MARK: - 3. Users
+            UsersView()
+                .tabItem {
+                    Label("Users", systemImage: "person.3.fill")
                 }
         }
     }

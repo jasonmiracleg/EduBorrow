@@ -25,8 +25,11 @@ final class RoomService {
     }
 
     // UPDATE
-    func updateRoom(room: Room, newName: String, context: ModelContext) {
-        room.roomName = newName
+    func updateRoom(room: Room, building: String, floor: String, capacity: Int, context: ModelContext) {
+        room.roomName = "Room \(floor)-\(building)-\(capacity)"
+        room.building = building
+        room.floor = floor
+        room.capacity = capacity
         save(context: context)
     }
 

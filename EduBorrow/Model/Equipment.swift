@@ -18,6 +18,8 @@ class Equipment: Identifiable {
     var stock: Int
     var category: Category
     
+    var id: String { equipmentId }
+    
     @Relationship(deleteRule: .cascade)
     var borrowingRecords: [BorrowingEquipment] = []
     

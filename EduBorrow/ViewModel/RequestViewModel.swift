@@ -13,8 +13,6 @@ import SwiftData
 final class RequestViewModel: ObservableObject {
 
     @Published var pendingBorrowings: [Borrowing] = []
-    @Published var selectedBorrowing: Borrowing?
-    @Published var showUpdateSheet: Bool = false
 
     private let service = BorrowingService()
 

@@ -43,11 +43,36 @@ struct PropertiesView: View {
                     }
                     .padding(.top)
 
-                    // MARK: Equipments
-                    VStack(alignment: .leading) {
+                    // MARK: Equipments Header
+                    HStack {
                         Text("Equipments")
                             .font(.headline)
 
+                        Spacer()
+
+                        NavigationLink {
+                            AllEquipmentView(equipmentVM: equipmentVM)
+                        } label: {
+                            Text("See All")
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                        }
+                    }
+
+                    // MARK: Equipments Content
+                    if equipmentVM.equipments.isEmpty {
+                        VStack(spacing: 8) {
+                            Image(systemName: "wrench.and.screwdriver")
+                                .font(.largeTitle)
+                                .foregroundStyle(.secondary)
+
+                            Text("No equipment available")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 20)
+                    } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(spacing: 12) {
                                 ForEach(equipmentVM.equipments.prefix(5), id: \.equipmentId) { item in
@@ -60,11 +85,36 @@ struct PropertiesView: View {
                         }
                     }
 
-                    // MARK: Rooms
-                    VStack(alignment: .leading) {
+                    // MARK: Rooms Header
+                    HStack {
                         Text("Rooms")
                             .font(.headline)
 
+                        Spacer()
+
+                        NavigationLink {
+                            AllRoomsView(roomVM: roomVM)
+                        } label: {
+                            Text("See All")
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                        }
+                    }
+
+                    // MARK: Rooms Content
+                    if roomVM.rooms.isEmpty {
+                        VStack(spacing: 8) {
+                            Image(systemName: "door.left.hand.open")
+                                .font(.largeTitle)
+                                .foregroundStyle(.secondary)
+
+                            Text("No rooms available")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 20)
+                    } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(spacing: 12) {
                                 ForEach(roomVM.rooms.prefix(5), id: \.id) { room in

@@ -38,8 +38,8 @@ final class RoomViewModel: ObservableObject {
     }
 
     // MARK: - UPDATE
-    func updateRoom(room: Room, newName: String, context: ModelContext) {
-        service.updateRoom(room: room, newName: newName, context: context)
+    func updateRoom(room: Room, floor: String, building: String, capacity: Int, context: ModelContext) {
+        service.updateRoom(room: room, building: building, floor: floor, capacity: capacity, context: context)
         loadRooms(context: context)
     }
 

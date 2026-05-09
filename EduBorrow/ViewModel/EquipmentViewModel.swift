@@ -77,5 +77,6 @@ final class EquipmentViewModel: ObservableObject {
         let formatted = String(format: "%03d", number)
 
         return "\(prefix)-\(formatted)"
+
     }
 }

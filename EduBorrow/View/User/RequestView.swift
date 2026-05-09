@@ -12,6 +12,8 @@ struct RequestView: View {
     @EnvironmentObject var viewModel: AuthenticationViewModel
     @StateObject var requestViewModel: RequestViewModel
     @Environment(\.modelContext) var context
+    @State private var selectedBorrowing: Borrowing?
+    @State private var showUpdateSheet: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -79,8 +81,8 @@ struct RequestView: View {
                                     )
                                     .contextMenu {
                                         Button {
-                                            requestViewModel.selectedBorrowing = borrowing
-                                            requestViewModel.showUpdateSheet = true
+                                            selectedBorrowing = borrowing
+                                            showUpdateSheet = true
                                         } label: {
                                             Label("Update", systemImage: "pencil")
                                         }
@@ -113,8 +115,8 @@ struct RequestView: View {
                     )
                 }
             }
-            .sheet(isPresented: $requestViewModel.showUpdateSheet) {
-                if let borrowing = requestViewModel.selectedBorrowing {
+            .sheet(isPresented: $showUpdateSheet) {
+                if let borrowing = selectedBorrowing {
                     UpdateBorrowingView(viewModel: requestViewModel, borrowing: borrowing)
                 }
             }

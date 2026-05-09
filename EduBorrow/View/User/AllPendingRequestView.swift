@@ -12,6 +12,8 @@ struct AllPendingRequestsView: View {
     @EnvironmentObject var viewModel: AuthenticationViewModel
     @Environment(\.modelContext) var context
     @ObservedObject var requestViewModel: RequestViewModel
+    @State private var selectedBorrowing: Borrowing?
+    @State private var showUpdateSheet: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -20,8 +22,8 @@ struct AllPendingRequestsView: View {
                     PendingRequestDetailCard(borrowing: borrowing)
                     .contextMenu {
                             Button {
-                                requestViewModel.selectedBorrowing = borrowing
-                                requestViewModel.showUpdateSheet = true
+                                selectedBorrowing = borrowing
+                                showUpdateSheet = true
                             } label: {
                                 Label("Update", systemImage: "pencil")
                             }

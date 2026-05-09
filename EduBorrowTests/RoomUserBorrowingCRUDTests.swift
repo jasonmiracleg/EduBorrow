@@ -67,7 +67,7 @@ final class RoomUserBorrowingCRUDTests: XCTestCase {
         var users = userService.fetchUsers(context: context)
         XCTAssertEqual(users.count, 1)
 
-        var user = users[0]
+        let user = users[0]
         XCTAssertEqual(user.identityNumber, "ID001")
         XCTAssertEqual(user.name, "Alice Smith")
         XCTAssertEqual(user.role, .student)
@@ -113,7 +113,7 @@ final class RoomUserBorrowingCRUDTests: XCTestCase {
         var all = borrowingService.fetchAllBorrowings(context: context)
         XCTAssertEqual(all.count, 1)
 
-        var borrowing = all[0]
+        let borrowing = all[0]
         XCTAssertEqual(borrowing.user.userId, user.userId)
         XCTAssertEqual(borrowing.room.roomId, room.roomId)
         XCTAssertEqual(borrowing.durationInHours, 2)

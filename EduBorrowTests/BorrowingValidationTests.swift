@@ -70,8 +70,9 @@ final class BorrowingValidationTests: XCTestCase {
         }
     }
     
-    func testCreateBorrowRequest_ShouldRejectWhenNoEquipmentSelected() {
-        XCTAssertThrowsError(try service.createBorrowRequest(
+    func testCreateBorrowRequest_ShouldAllowRoomOnlyBorrowing() {
+        // Allow room-only borrowing (no equipment selected)
+        XCTAssertNoThrow(try service.createBorrowRequest(
             user: user,
             room: room,
             usageDate: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
@@ -79,10 +80,10 @@ final class BorrowingValidationTests: XCTestCase {
             purpose: "Meeting",
             selectedEquipments: [:],
             context: context
-        )) { _ in
-            let result = (try? context.fetch(FetchDescriptor<Borrowing>())) ?? []
-            XCTAssertTrue(result.isEmpty, "Borrowing with no equipments should not be inserted")
-        }
+        ))
+        
+        let result = (try? context.fetch(FetchDescriptor<Borrowing>())) ?? []
+        XCTAssertEqual(result.count, 1, "Borrowing without equipment should be inserted")
     }
     
     func testCreateBorrowRequest_ShouldRejectWhenRequestedQuantityExceedsStock() {

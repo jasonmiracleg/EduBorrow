@@ -30,38 +30,45 @@ struct AllRequestsView: View {
                     Spacer()
                 }
             } else {
-                List(requestViewModel.borrowings) { borrowing in
-                    VStack(alignment: .leading, spacing: 6) {
+                ScrollView {
+                    LazyVStack(spacing: 12, pinnedViews: []) {
+                        ForEach(requestViewModel.borrowings) { borrowing in
+                            VStack(alignment: .leading, spacing: 6) {
 
-                        Text(borrowing.room.building)
-                            .font(.headline)
+                                Text(borrowing.room.building)
+                                    .font(.headline)
 
-                        Text("Requested: \(borrowing.requestDate.formatted())")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-
-                        Text("Status: \(borrowing.statusApproval.rawValue)")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-
-                        // MARK: FINISH BUTTON (CONDITIONAL)
-                        if shouldShowFinishButton(for: borrowing) {
-
-                            Button {
-                                requestViewModel.finishBorrowing(
-                                    borrowing: borrowing,
-                                    context: context
-                                )
-                            } label: {
-                                Text("Finish")
+                                Text("Requested: \(borrowing.requestDate.formatted())")
                                     .font(.caption)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(Color.green)
-                                    .cornerRadius(8)
+                                    .foregroundColor(.gray)
+
+                                Text("Status: \(borrowing.statusApproval.rawValue)")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+
+                                // MARK: FINISH BUTTON (CONDITIONAL)
+                                if shouldShowFinishButton(for: borrowing) {
+
+                                    Button {
+                                        requestViewModel.finishBorrowing(
+                                            borrowing: borrowing,
+                                            context: context
+                                        )
+                                    } label: {
+                                        Text("Finish")
+                                            .font(.caption)
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(Color.green)
+                                            .cornerRadius(8)
+                                    }
+                                    .padding(.top, 4)
+                                }
                             }
-                            .padding(.top, 4)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 8)
+                            Divider()
                         }
                     }
                 }

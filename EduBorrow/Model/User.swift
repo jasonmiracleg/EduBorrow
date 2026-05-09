@@ -18,6 +18,7 @@ class User: Identifiable {
     @Relationship(deleteRule: .cascade)
     var borrowings: [Borrowing] = []
     
+    @Attribute(.unique)
     var identityNumber: String
     var name: String
     var phoneNumber: String

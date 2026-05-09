@@ -70,7 +70,7 @@ final class RequestViewModelTests: XCTestCase {
         XCTAssertTrue(all.isEmpty)
     }
 
-    func testCreateBorrowRequest_NoEquipmentSelected_ShouldNotInsert() {
+    func testCreateBorrowRequest_NoEquipmentSelected_ShouldInsert() {
         vm.createBorrowRequest(
             user: user,
             room: room,
@@ -82,7 +82,7 @@ final class RequestViewModelTests: XCTestCase {
         )
 
         let all = (try? context.fetch(FetchDescriptor<Borrowing>())) ?? []
-        XCTAssertTrue(all.isEmpty)
+        XCTAssertEqual(all.count, 1)
     }
 
     func testCreateBorrowRequest_RequestExceedsStock_ShouldNotInsert() {

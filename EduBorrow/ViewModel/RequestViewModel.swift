@@ -59,8 +59,7 @@ final class RequestViewModel: ObservableObject {
                     approvalMessage = "Invalid duration"
                 case .emptyPurpose:
                     approvalMessage = "Purpose is required"
-                case .noEquipmentSelected:
-                    approvalMessage = "Select at least one equipment"
+                // noEquipmentSelected case removed: empty equipment selection is allowed
                 case .insufficientStock(let name):
                     approvalMessage = "Insufficient stock for \(name)"
                 }

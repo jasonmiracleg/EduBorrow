@@ -14,7 +14,6 @@ final class BorrowingService {
         case pastDate
         case invalidDuration
         case emptyPurpose
-        case noEquipmentSelected
         case insufficientStock(equipmentName: String)
     }
 
@@ -46,10 +45,6 @@ final class BorrowingService {
 
         // Filter selected equipments with positive quantities
         let filteredEquipments = selectedEquipments.filter { $0.value > 0 }
-
-        guard !filteredEquipments.isEmpty else {
-            throw CreateError.noEquipmentSelected
-        }
 
         // Validate stock availability at creation time
         for (equipment, quantity) in filteredEquipments {
@@ -289,7 +284,11 @@ final class BorrowingService {
             return
         }
 
+        // mark as finished, record return time and restore stock
         borrowing.statusApproval = .finished
+        borrowing.returnTime = Date()
+
+        restoreStock(for: borrowing)
 
         save(context)
     }

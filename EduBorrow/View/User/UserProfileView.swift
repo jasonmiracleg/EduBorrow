@@ -9,6 +9,11 @@ import SwiftUI
 struct UserProfileView: View {
     @EnvironmentObject var viewModel: AuthenticationViewModel
 
+    @State private var cachedName: String = ""
+    @State private var cachedRole: String = ""
+    @State private var cachedIdentityNumber: String = ""
+    @State private var cachedPhoneNumber: String = ""
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -25,11 +30,11 @@ struct UserProfileView: View {
                         
                         VStack(spacing: 6) {
                             
-                            Text(viewModel.user?.name ?? "Unknown")
+                                Text(cachedName.isEmpty ? (viewModel.user?.name ?? "Unknown") : cachedName)
                                 .font(.title2)
                                 .fontWeight(.bold)
                             
-                            Text(viewModel.user?.role.rawValue ?? "Unknown")
+                            Text(cachedRole.isEmpty ? (viewModel.user?.role.rawValue ?? "Unknown") : cachedRole)
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
@@ -52,7 +57,7 @@ struct UserProfileView: View {
                         VStack(spacing: 18) {
                             ProfileInfoRow(
                                 title: "Identity Number",
-                                value: viewModel.user?.identityNumber ?? "Unknown"
+                                value: cachedIdentityNumber.isEmpty ? (viewModel.user?.identityNumber ?? "Unknown") : cachedIdentityNumber
                             )
                             
                             Divider()
@@ -60,7 +65,7 @@ struct UserProfileView: View {
                             
                             ProfileInfoRow(
                                 title: "Phone Number",
-                                value: viewModel.user?.phoneNumber ?? "Unknown"
+                                value: cachedPhoneNumber.isEmpty ? (viewModel.user?.phoneNumber ?? "Unknown") : cachedPhoneNumber
                             )
                         }
                     }
@@ -92,6 +97,14 @@ struct UserProfileView: View {
                 }
             }
             .padding(24)
+            .onAppear {
+                if let user = viewModel.user {
+                    cachedName = user.name
+                    cachedRole = user.role.rawValue
+                    cachedIdentityNumber = user.identityNumber
+                    cachedPhoneNumber = user.phoneNumber
+                }
+            }
         }
     }
 }

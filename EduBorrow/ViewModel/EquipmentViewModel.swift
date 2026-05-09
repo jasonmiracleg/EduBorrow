@@ -29,7 +29,7 @@ final class EquipmentViewModel: ObservableObject {
         context: ModelContext
     ) {
 
-        let newId = generateEquipmentId(category: category)
+        let newId = generateEquipmentId(category: category, context: context)
 
         service.createEquipment(
             equipmentId: newId,
@@ -68,15 +68,26 @@ final class EquipmentViewModel: ObservableObject {
     }
 
     // MARK: - ID GENERATOR
-    private func generateEquipmentId(category: Category) -> String {
+    private func generateEquipmentId(category: Category, context: ModelContext) -> String {
 
         let prefix = category.code
 
-        // simple unique number based on timestamp
-        let number = (equipments.count + 1)
-        let formatted = String(format: "%03d", number)
+        let descriptor = FetchDescriptor<Equipment>(
+            sortBy: [SortDescriptor(\.equipmentId, order: .reverse)]
+        )
+
+        let all = (try? context.fetch(descriptor)) ?? []
+
+        let lastNumber = all
+            .compactMap { equipment in
+                let parts = equipment.equipmentId.split(separator: "-")
+                return Int(parts.last ?? "")
+            }
+            .max() ?? 0
+
+        let next = lastNumber + 1
+        let formatted = String(format: "%03d", next)
 
         return "\(prefix)-\(formatted)"
-
     }
 }

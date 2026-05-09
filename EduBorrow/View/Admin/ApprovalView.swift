@@ -6,36 +6,41 @@
 //
 
 import SwiftUI
+import SwiftData
+
 struct ApprovalView: View {
 
-    @State private var requests = [
-        "Borrow Projector",
-        "Request Room A",
-        "Borrow Laptop"
-    ]
+    @Environment(\.modelContext) private var context
+
+    @Query(sort: \Borrowing.requestDate, order: .reverse)
+    private var allRequests: [Borrowing]
+
+    var pendingRequests: [Borrowing] {
+        allRequests.filter { $0.statusApproval == .pending }
+    }
 
     var body: some View {
-        List {
-            ForEach(requests, id: \.self) { request in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(request)
-                        .font(.headline)
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 12) {
 
-                    HStack {
-                        Button("Approve") {
-                            // handle approve
+                    if pendingRequests.isEmpty {
+                        ContentUnavailableView(
+                            "No Pending Approvals",
+                            systemImage: "checkmark.seal",
+                            description: Text("All requests have been processed.")
+                        )
+                        .padding(.top, 40)
+                    } else {
+                        ForEach(pendingRequests) { request in
+                            ApprovalCard(request: request, context: context)
+                                .padding(.horizontal)
                         }
-                        .buttonStyle(.borderedProminent)
-
-                        Button("Reject") {
-                            // handle reject
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.red)
                     }
                 }
-                .padding(.vertical, 6)
+                .padding(.vertical)
             }
+            .navigationTitle("Approvals")
         }
     }
 }

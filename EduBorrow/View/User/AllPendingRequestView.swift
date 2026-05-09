@@ -18,33 +18,57 @@ struct AllPendingRequestsView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(requestViewModel.pendingBorrowings) { borrowing in
-                    PendingRequestDetailCard(borrowing: borrowing)
-                    .contextMenu {
-                            Button {
-                                selectedBorrowing = borrowing
-                                showUpdateSheet = true
-                            } label: {
-                                Label("Update", systemImage: "pencil")
-                            }
-                            
-                            // MARK: Delete action
-                            if viewModel.user != nil {
-                                Button(role: .destructive) {
-                                    requestViewModel.deleteBorrowing(
-                                        borrowing: borrowing, user: viewModel.user!,
-                                        context: context
-                                    )
+                if requestViewModel.pendingBorrowings.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "checkmark.seal")
+                            .font(.largeTitle)
+                            .foregroundStyle(.secondary)
+
+                        Text("No Pending Requests")
+                            .font(.headline)
+
+                        Text("All borrow requests have been processed.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                    .listRowSeparator(.hidden)
+                } else {
+                    ForEach(requestViewModel.pendingBorrowings) { borrowing in
+                        PendingRequestDetailCard(borrowing: borrowing)
+                            .contextMenu {
+                                Button {
+                                    selectedBorrowing = borrowing
+                                    showUpdateSheet = true
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label("Update", systemImage: "pencil")
+                                }
+
+                                if viewModel.user != nil {
+                                    Button(role: .destructive) {
+                                        requestViewModel.deleteBorrowing(
+                                            borrowing: borrowing,
+                                            user: viewModel.user!,
+                                            context: context
+                                        )
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
                                 }
                             }
-                        }
-                    .listRowSeparator(.hidden)
+                            .listRowSeparator(.hidden)
+                    }
                 }
             }
             .listStyle(.plain)
             .navigationTitle("All Pending Requests")
+            .sheet(isPresented: $showUpdateSheet) {
+                if let borrowing = selectedBorrowing {
+                    UpdateBorrowingView(viewModel: requestViewModel, borrowing: borrowing)
+                }
+            }
         }
     }
 }

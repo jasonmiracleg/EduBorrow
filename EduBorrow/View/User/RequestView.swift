@@ -12,8 +12,6 @@ struct RequestView: View {
     @EnvironmentObject var viewModel: AuthenticationViewModel
     @StateObject var requestViewModel: RequestViewModel
     @Environment(\.modelContext) var context
-    @State private var selectedBorrowing: Borrowing?
-    @State private var showUpdateSheet: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -79,26 +77,6 @@ struct RequestView: View {
                                         requestDate: borrowing.requestDate.formatted(),
                                         status: borrowing.statusApproval.rawValue
                                     )
-                                    .contextMenu {
-                                        Button {
-                                            selectedBorrowing = borrowing
-                                            showUpdateSheet = true
-                                        } label: {
-                                            Label("Update", systemImage: "pencil")
-                                        }
-                                        
-                                        // MARK: Delete action
-                                        if viewModel.user != nil {
-                                            Button(role: .destructive) {
-                                                requestViewModel.deleteBorrowing(
-                                                    borrowing: borrowing, user: viewModel.user!,
-                                                    context: context
-                                                )
-                                            } label: {
-                                                Label("Delete", systemImage: "trash")
-                                            }
-                                        }
-                                    }
                                 }
                             }
                         }
@@ -113,11 +91,6 @@ struct RequestView: View {
                         user: user,
                         context: context
                     )
-                }
-            }
-            .sheet(isPresented: $showUpdateSheet) {
-                if let borrowing = selectedBorrowing {
-                    UpdateBorrowingView(viewModel: requestViewModel, borrowing: borrowing)
                 }
             }
         }

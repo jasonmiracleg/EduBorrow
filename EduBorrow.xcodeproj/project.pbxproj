@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6A249A482FAF6E5E00487F18 /* TPPDF in Frameworks */ = {isa = PBXBuildFile; productRef = 6A249A472FAF6E5E00487F18 /* TPPDF */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		6A2498EE2FAEDC7000487F18 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6A249A482FAF6E5E00487F18 /* TPPDF in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = EduBorrow;
 			packageProductDependencies = (
+				6A249A472FAF6E5E00487F18 /* TPPDF */,
 			);
 			productName = EduBorrow;
 			productReference = 6A2498DE2FAEDC6F00487F18 /* EduBorrow.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 6A2498D52FAEDC6F00487F18;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6A249A462FAF6E5E00487F18 /* XCRemoteSwiftPackageReference "TPPDF" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6A2498DF2FAEDC6F00487F18 /* Products */;
 			projectDirPath = "";
@@ -578,6 +587,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6A249A462FAF6E5E00487F18 /* XCRemoteSwiftPackageReference "TPPDF" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Techprimate/TPPDF";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6A249A472FAF6E5E00487F18 /* TPPDF */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6A249A462FAF6E5E00487F18 /* XCRemoteSwiftPackageReference "TPPDF" */;
+			productName = TPPDF;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6A2498D62FAEDC6F00487F18 /* Project object */;
 }

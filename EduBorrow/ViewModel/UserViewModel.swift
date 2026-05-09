@@ -16,7 +16,7 @@ final class UserViewModel: ObservableObject {
 
     private let service = UserService()
 
-    func loadUsers(context: ModelContext) {
+    func loadUsers(context: ModelContextType) {
         users = service.fetchUsers(context: context)
     }
 
@@ -25,7 +25,7 @@ final class UserViewModel: ObservableObject {
         name: String,
         phoneNumber: String,
         role: Role,
-        context: ModelContext
+        context: ModelContextType
     ) {
         service.addUser(
             identityNumber: identityNumber,
@@ -44,7 +44,7 @@ final class UserViewModel: ObservableObject {
         name: String,
         phoneNumber: String,
         role: Role,
-        context: ModelContext
+        context: ModelContextType
     ) {
         service.updateUser(
             user: user,
@@ -58,7 +58,7 @@ final class UserViewModel: ObservableObject {
         loadUsers(context: context)
     }
 
-    func deleteUser(user: User, context: ModelContext) {
+    func deleteUser(user: User, context: ModelContextType) {
         service.deleteUser(user: user, context: context)
         loadUsers(context: context)
     }

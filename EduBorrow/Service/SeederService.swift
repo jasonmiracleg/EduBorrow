@@ -9,7 +9,7 @@ import SwiftData
 import Foundation
 
 class SeederService {
-    static func seedUsers(context: ModelContext) {
+    static func seedUsers(context: ModelContextType) {
 
         let descriptor = FetchDescriptor<User>()
 

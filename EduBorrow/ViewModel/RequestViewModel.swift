@@ -37,28 +37,48 @@ final class RequestViewModel: ObservableObject {
         duration: Int,
         purpose: String,
         selectedEquipments: [Equipment: Int],
-        context: ModelContext
+        context: ModelContextType
     ) {
-        service.createBorrowRequest(
-            user: user,
-            room: room,
-            usageDate: usageDate,
-            duration: duration,
-            purpose: purpose,
-            selectedEquipments: selectedEquipments,
-            context: context
-        )
+        do {
+            try service.createBorrowRequest(
+                user: user,
+                room: room,
+                usageDate: usageDate,
+                duration: duration,
+                purpose: purpose,
+                selectedEquipments: selectedEquipments,
+                context: context
+            )
+        } catch {
+            // Optionally map error to a user-facing message
+            if let e = error as? BorrowingService.CreateError {
+                switch e {
+                case .pastDate:
+                    approvalMessage = "Invalid usage date"
+                case .invalidDuration:
+                    approvalMessage = "Invalid duration"
+                case .emptyPurpose:
+                    approvalMessage = "Purpose is required"
+                case .noEquipmentSelected:
+                    approvalMessage = "Select at least one equipment"
+                case .insufficientStock(let name):
+                    approvalMessage = "Insufficient stock for \(name)"
+                }
+            } else {
+                approvalMessage = "Failed to create request"
+            }
+        }
 
         fetchAllBorrowings(context: context)
     }
 
     // MARK: - READ
-    func fetchAllBorrowings(context: ModelContext) {
+    func fetchAllBorrowings(context: ModelContextType) {
         borrowings = service.fetchAllBorrowings(context: context)
     }
 
     // MARK: - APPROVE (NEW SAFE ENTRY POINT)
-    func approve(borrowing: Borrowing, context: ModelContext) {
+    func approve(borrowing: Borrowing, context: ModelContextType) {
 
         let success = service.approveBorrowing(borrowing, context: context)
 
@@ -79,7 +99,7 @@ final class RequestViewModel: ObservableObject {
     }
 
     // MARK: - REJECT (NEW SAFE ENTRY POINT)
-    func reject(borrowing: Borrowing, context: ModelContext) {
+    func reject(borrowing: Borrowing, context: ModelContextType) {
         let success = service.rejectBorrowing(borrowing, context: context)
 
         if success {
@@ -93,14 +113,14 @@ final class RequestViewModel: ObservableObject {
     func deleteBorrowing(
         borrowing: Borrowing,
         user: User,
-        context: ModelContext
+        context: ModelContextType
     ) {
         service.deleteBorrowing(borrowing, context: context)
         fetchAllBorrowings(context: context)
     }
 
     // MARK: - SYNC (optional future hook)
-    func sync(user: User, context: ModelContext) {
+    func sync(user: User, context: ModelContextType) {
         service.finalizeExpiredBorrowings(context: context)
         service.autoRejectExpiredRequests(context: context)
         fetchAllBorrowings(context: context)
@@ -114,7 +134,7 @@ final class RequestViewModel: ObservableObject {
         duration: Int,
         purpose: String,
         selectedEquipments: [Equipment: Int],
-        context: ModelContext
+        context: ModelContextType
     ) {
 
         service.updateBorrowing(
@@ -130,7 +150,7 @@ final class RequestViewModel: ObservableObject {
 
     func finishBorrowing(
         borrowing: Borrowing,
-        context: ModelContext
+        context: ModelContextType
     ) {
         service.finishBorrowing(borrowing, context: context)
         fetchAllBorrowings(context: context)

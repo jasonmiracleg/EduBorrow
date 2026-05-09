@@ -17,7 +17,7 @@ final class EquipmentViewModel: ObservableObject {
     private let service = EquipmentService()
 
     // MARK: - LOAD
-    func loadEquipment(context: ModelContext) {
+    func loadEquipment(context: ModelContextType) {
         equipments = service.fetchEquipment(context: context)
     }
 
@@ -26,7 +26,7 @@ final class EquipmentViewModel: ObservableObject {
         name: String,
         stock: Int,
         category: Category,
-        context: ModelContext
+        context: ModelContextType
     ) {
 
         let newId = generateEquipmentId(category: category, context: context)
@@ -48,7 +48,7 @@ final class EquipmentViewModel: ObservableObject {
         name: String,
         stock: Int,
         category: Category,
-        context: ModelContext
+            context: ModelContextType
     ) {
         service.updateEquipment(
             equipment: equipment,
@@ -62,13 +62,13 @@ final class EquipmentViewModel: ObservableObject {
     }
 
     // MARK: - DELETE
-    func deleteEquipment(equipment: Equipment, context: ModelContext) {
+    func deleteEquipment(equipment: Equipment, context: ModelContextType) {
         service.deleteEquipment(equipment: equipment, context: context)
         loadEquipment(context: context)
     }
 
     // MARK: - ID GENERATOR
-    private func generateEquipmentId(category: Category, context: ModelContext) -> String {
+    private func generateEquipmentId(category: Category, context: ModelContextType) -> String {
 
         let prefix = category.code
 

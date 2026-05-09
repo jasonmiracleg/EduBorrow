@@ -11,7 +11,7 @@ import Foundation
 final class RoomService {
 
     // CREATE
-    func createRoom(floor: String, building: String, capacity: Int, context: ModelContext) {
+    func createRoom(floor: String, building: String, capacity: Int, context: ModelContextType) {
         let room = Room(floor: floor, building: building, capacity: capacity)
         context.insert(room)
 
@@ -19,13 +19,13 @@ final class RoomService {
     }
 
     // READ
-    func fetchRooms(context: ModelContext) -> [Room] {
+    func fetchRooms(context: ModelContextType) -> [Room] {
         let descriptor = FetchDescriptor<Room>()
         return (try? context.fetch(descriptor)) ?? []
     }
 
     // UPDATE
-    func updateRoom(room: Room, building: String, floor: String, capacity: Int, context: ModelContext) {
+    func updateRoom(room: Room, building: String, floor: String, capacity: Int, context: ModelContextType) {
         room.roomName = "Room \(floor)-\(building)-\(capacity)"
         room.building = building
         room.floor = floor
@@ -34,13 +34,13 @@ final class RoomService {
     }
 
     // DELETE
-    func deleteRoom(room: Room, context: ModelContext) {
+    func deleteRoom(room: Room, context: ModelContextType) {
         context.delete(room)
         save(context: context)
     }
 
     // MARK: - Private
-    private func save(context: ModelContext) {
+    private func save(context: ModelContextType) {
         do {
             try context.save()
         } catch {

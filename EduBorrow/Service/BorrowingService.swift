@@ -10,6 +10,14 @@ import SwiftData
 
 final class BorrowingService {
 
+    enum CreateError: Error {
+        case pastDate
+        case invalidDuration
+        case emptyPurpose
+        case noEquipmentSelected
+        case insufficientStock(equipmentName: String)
+    }
+
     // MARK: - CREATE
     func createBorrowRequest(
         user: User,
@@ -18,14 +26,38 @@ final class BorrowingService {
         duration: Int,
         purpose: String,
         selectedEquipments: [Equipment: Int],
-        context: ModelContext
-    ) {
+        context: ModelContextType
+    ) throws {
 
+        // Basic temporal validation
         guard usageDate >= Date() else {
-            print("Cannot create request for past time")
-            return
+            throw CreateError.pastDate
         }
-        
+
+        // Duration must be positive
+        guard duration > 0 else {
+            throw CreateError.invalidDuration
+        }
+
+        // Purpose must not be empty
+        if purpose.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            throw CreateError.emptyPurpose
+        }
+
+        // Filter selected equipments with positive quantities
+        let filteredEquipments = selectedEquipments.filter { $0.value > 0 }
+
+        guard !filteredEquipments.isEmpty else {
+            throw CreateError.noEquipmentSelected
+        }
+
+        // Validate stock availability at creation time
+        for (equipment, quantity) in filteredEquipments {
+            if equipment.stock < quantity {
+                throw CreateError.insufficientStock(equipmentName: equipment.equipmentName)
+            }
+        }
+
         let borrowing = Borrowing(
             user: user,
             room: room,
@@ -38,7 +70,7 @@ final class BorrowingService {
 
         context.insert(borrowing)
 
-        for (equipment, quantity) in selectedEquipments where quantity > 0 {
+        for (equipment, quantity) in filteredEquipments {
             let item = BorrowingEquipment(
                 borrowing: borrowing,
                 equipment: equipment,
@@ -52,7 +84,7 @@ final class BorrowingService {
     }
 
     // MARK: - APPROVE (ALL RULES HERE)
-    func approveBorrowing(_ borrowing: Borrowing, context: ModelContext) -> Bool {
+    func approveBorrowing(_ borrowing: Borrowing, context: ModelContextType) -> Bool {
 
         guard borrowing.statusApproval == .pending else {
             lastApprovalError = .alreadyProcessed
@@ -95,7 +127,7 @@ final class BorrowingService {
 
 
     // MARK: - REJECT
-    func rejectBorrowing(_ borrowing: Borrowing, context: ModelContext) -> Bool {
+    func rejectBorrowing(_ borrowing: Borrowing, context: ModelContextType) -> Bool {
 
         guard borrowing.statusApproval == .pending else {
             lastApprovalError = .alreadyProcessed
@@ -110,7 +142,7 @@ final class BorrowingService {
     }
 
     // MARK: - FINALIZE EXPIRED
-    func finalizeExpiredBorrowings(context: ModelContext) {
+    func finalizeExpiredBorrowings(context: ModelContextType) {
 
         let all = fetchAllBorrowings(context: context)
         let now = Date()
@@ -133,7 +165,7 @@ final class BorrowingService {
     }
 
     // MARK: - ROOM AVAILABILITY CHECK
-    private func isRoomAvailable(_ borrowing: Borrowing, context: ModelContext) -> Bool {
+    private func isRoomAvailable(_ borrowing: Borrowing, context: ModelContextType) -> Bool {
         let all = fetchAllBorrowings(context: context)
 
         return !all.contains {
@@ -174,24 +206,24 @@ final class BorrowingService {
     }
 
     // MARK: - READ
-    func fetchAllBorrowings(context: ModelContext) -> [Borrowing] {
+    func fetchAllBorrowings(context: ModelContextType) -> [Borrowing] {
         (try? context.fetch(FetchDescriptor<Borrowing>())) ?? []
     }
 
-    func fetchPendingBorrowings(user: User, context: ModelContext) -> [Borrowing] {
+    func fetchPendingBorrowings(user: User, context: ModelContextType) -> [Borrowing] {
         fetchAllBorrowings(context: context).filter {
             $0.user.userId == user.userId && $0.statusApproval == .pending
         }
     }
 
     // MARK: - DELETE
-    func deleteBorrowing(_ borrowing: Borrowing, context: ModelContext) {
+    func deleteBorrowing(_ borrowing: Borrowing, context: ModelContextType) {
         context.delete(borrowing)
         save(context)
     }
 
     // MARK: - SAVE
-    private func save(_ context: ModelContext) {
+    private func save(_ context: ModelContextType) {
         do {
             try context.save()
         } catch {
@@ -207,7 +239,7 @@ final class BorrowingService {
         duration: Int,
         purpose: String,
         selectedEquipments: [Equipment: Int],
-        context: ModelContext
+        context: ModelContextType
     ) {
 
         guard borrowing.statusApproval == .pending else {
@@ -235,7 +267,7 @@ final class BorrowingService {
         save(context)
     }
     
-    func autoRejectExpiredRequests(context: ModelContext) {
+    func autoRejectExpiredRequests(context: ModelContextType) {
 
         let all = fetchAllBorrowings(context: context)
         let now = Date()
@@ -250,7 +282,7 @@ final class BorrowingService {
         save(context)
     }
     
-    func finishBorrowing(_ borrowing: Borrowing, context: ModelContext) {
+    func finishBorrowing(_ borrowing: Borrowing, context: ModelContextType) {
 
         guard borrowing.statusApproval == .approved else {
             print("Only approved borrowings can be finished")

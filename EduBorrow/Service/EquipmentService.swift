@@ -16,7 +16,7 @@ final class EquipmentService {
         name: String,
         stock: Int,
         category: Category,
-        context: ModelContext
+        context: ModelContextType
     ) {
         let equipment = Equipment(
             equipmentId: equipmentId,
@@ -30,7 +30,7 @@ final class EquipmentService {
     }
 
     // READ
-    func fetchEquipment(context: ModelContext) -> [Equipment] {
+    func fetchEquipment(context: ModelContextType) -> [Equipment] {
         let descriptor = FetchDescriptor<Equipment>()
         return (try? context.fetch(descriptor)) ?? []
     }
@@ -41,7 +41,7 @@ final class EquipmentService {
         name: String,
         stock: Int,
         category: Category,
-        context: ModelContext
+        context: ModelContextType
     ) {
         equipment.equipmentName = name
         equipment.stock = stock
@@ -51,13 +51,13 @@ final class EquipmentService {
     }
 
     // DELETE
-    func deleteEquipment(equipment: Equipment, context: ModelContext) {
+    func deleteEquipment(equipment: Equipment, context: ModelContextType) {
         context.delete(equipment)
         save(context: context)
     }
 
     // MARK: - Private
-    private func save(context: ModelContext) {
+    private func save(context: ModelContextType) {
         do {
             try context.save()
         } catch {

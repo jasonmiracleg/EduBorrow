@@ -21,7 +21,7 @@ class AuthenticationViewModel: ObservableObject {
 
     private let authService = AuthenticationService()
 
-    func login(context: ModelContext) {
+    func login(context: ModelContextType) {
 
         let success = authService.authenticate(
             identityNumber: identityNumber,

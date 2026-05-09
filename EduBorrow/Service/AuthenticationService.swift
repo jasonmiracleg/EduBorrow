@@ -13,7 +13,7 @@ final class AuthenticationService {
     func authenticate(
         identityNumber: String,
         password: String,
-        context: ModelContext
+        context: ModelContextType
     ) -> Bool {
 
         let descriptor = FetchDescriptor<User>(
@@ -36,7 +36,7 @@ final class AuthenticationService {
     
     func getAuthenticatedUser(
         identityNumber: String,
-        context: ModelContext
+        context: ModelContextType
     ) -> User? {
 
         let descriptor = FetchDescriptor<User>(

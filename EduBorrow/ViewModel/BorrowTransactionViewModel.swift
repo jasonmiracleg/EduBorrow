@@ -20,9 +20,9 @@ final class BorrowTransactionViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     private let pdfService = PDFService()
-    private var context: ModelContext?
+    private var context: ModelContextType?
 
-    func setContext(_ context: ModelContext) {
+    func setContext(_ context: ModelContextType) {
         self.context = context
     }
 

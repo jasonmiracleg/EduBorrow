@@ -17,7 +17,7 @@ final class RoomViewModel: ObservableObject {
     private let service = RoomService()
 
     // MARK: - LOAD
-    func loadRooms(context: ModelContext) {
+    func loadRooms(context: ModelContextType) {
         rooms = service.fetchRooms(context: context)
     }
 
@@ -26,7 +26,7 @@ final class RoomViewModel: ObservableObject {
         floor: String,
         building: String,
         capacity: Int,
-        context: ModelContext
+        context: ModelContextType
     ) {
         service.createRoom(
             floor: floor,
@@ -38,13 +38,13 @@ final class RoomViewModel: ObservableObject {
     }
 
     // MARK: - UPDATE
-    func updateRoom(room: Room, floor: String, building: String, capacity: Int, context: ModelContext) {
+    func updateRoom(room: Room, floor: String, building: String, capacity: Int, context: ModelContextType) {
         service.updateRoom(room: room, building: building, floor: floor, capacity: capacity, context: context)
         loadRooms(context: context)
     }
 
     // MARK: - DELETE
-    func deleteRoom(room: Room, context: ModelContext) {
+    func deleteRoom(room: Room, context: ModelContextType) {
         service.deleteRoom(room: room, context: context)
         loadRooms(context: context)
     }

@@ -10,7 +10,7 @@ import Foundation
 
 final class UserService {
 
-    func fetchUsers(context: ModelContext) -> [User] {
+    func fetchUsers(context: ModelContextType) -> [User] {
         let descriptor = FetchDescriptor<User>(sortBy: [SortDescriptor(\.name)])
         return (try? context.fetch(descriptor)) ?? []
     }
@@ -20,19 +20,22 @@ final class UserService {
         name: String,
         phoneNumber: String,
         role: Role,
-        context: ModelContext
+        context: ModelContextType
     ) {
-        let password = name + "123"
+        let firstWord = name.split(separator: " ").first ?? ""
+        let password = firstWord + "123"
 
         let newUser = User(
             identityNumber: identityNumber,
             name: name,
             phoneNumber: phoneNumber,
-            password: password,
+            password: String(password),
             role: role
         )
 
         context.insert(newUser)
+        // persist immediately for consistency with other services
+        try? context.save()
     }
 
     func updateUser(
@@ -41,7 +44,7 @@ final class UserService {
             name: String,
             phoneNumber: String,
             role: Role,
-            context: ModelContext
+            context: ModelContextType
         ) {
             user.identityNumber = identityNumber
             user.name = name
@@ -51,7 +54,8 @@ final class UserService {
             try? context.save()
         }
 
-    func deleteUser(user: User, context: ModelContext) {
+    func deleteUser(user: User, context: ModelContextType) {
         context.delete(user)
+        try? context.save()
     }
 }

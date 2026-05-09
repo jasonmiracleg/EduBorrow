@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-class AuthenticationService {
+final class AuthenticationService {
 
     func authenticate(
         identityNumber: String,
@@ -31,6 +31,25 @@ class AuthenticationService {
         } catch {
             print("Authentication Error: \(error)")
             return false
+        }
+    }
+    
+    func getAuthenticatedUser(
+        identityNumber: String,
+        context: ModelContext
+    ) -> User? {
+
+        let descriptor = FetchDescriptor<User>(
+            predicate: #Predicate {
+                $0.identityNumber == identityNumber
+            }
+        )
+
+        do {
+            return try context.fetch(descriptor).first
+        } catch {
+            print("Fetch User Error: \(error)")
+            return nil
         }
     }
 }

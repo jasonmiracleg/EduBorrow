@@ -43,7 +43,7 @@ class SeederService {
                 name: "Jason",
                 phoneNumber: "0129917282",
                 password: "Lecture123",
-                role: .student
+                role: .lecturer
             )
 
             context.insert(admin)

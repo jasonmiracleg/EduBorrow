@@ -16,7 +16,13 @@ struct EduBorrowApp: App {
     var body: some Scene {
         WindowGroup {
             if authViewModel.isAuthenticated {
-                ContentView()
+                if authViewModel.user?.role == .admin {
+                    AdminTabView()
+                        .environmentObject(authViewModel)
+                } else {
+                    DashboardView()
+                        .environmentObject(authViewModel)
+                }
             } else {
                 AuthenticationView(
                     viewModel: authViewModel

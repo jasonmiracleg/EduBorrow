@@ -6,7 +6,7 @@
 //
 
 enum Role: String, Codable {
-    case student
-    case lecturer
-    case admin
+    case student = "Student"
+    case lecturer = "Lecturer"
+    case admin = "Admin"
 }

@@ -6,8 +6,8 @@
 //
 
 enum Approval: String, Codable {
-    case approved
-    case pending
-    case rejected
-    case finished
+    case approved = "approved"
+    case pending = "pending"
+    case rejected = "rejected"
+    case finished = "finished"
 }

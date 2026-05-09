@@ -17,6 +17,7 @@ class Room: Identifiable {
     @Relationship(deleteRule: .cascade)
     var borrowings: [Borrowing] = []
     
+    var roomName: String
     var floor: String
     var building: String
     var capacity: Int
@@ -24,6 +25,7 @@ class Room: Identifiable {
     
     init(floor: String, building: String, capacity: Int) {
         self.roomId = UUID()
+        self.roomName = "Room \(floor)-\(building)-\(capacity)"
         self.floor = floor
         self.building = building
         self.capacity = capacity

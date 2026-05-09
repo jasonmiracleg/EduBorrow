@@ -5,22 +5,24 @@
 //  Created by Jason Miracle Gunawan on 09/05/26.
 //
 
+import SwiftData
 import SwiftUI
+
 struct RequestView: View {
     @EnvironmentObject var viewModel: AuthenticationViewModel
     @StateObject var requestViewModel: RequestViewModel
+    @Environment(\.modelContext) var context
 
     var body: some View {
-        ScrollView {
+        NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
-
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("EduBorrow")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-
+                        
                         Text("Room & Equipment Request")
                             .foregroundColor(.gray)
                     }
@@ -31,7 +33,7 @@ struct RequestView: View {
                             .foregroundColor(.black)
                     }
                 }
-
+                
                 // Create Request Card
                 if let user = viewModel.user {
                     ActionCard(
@@ -45,40 +47,77 @@ struct RequestView: View {
                         )
                     )
                 }
-
+                
                 // Pending Approval
                 VStack(alignment: .leading, spacing: 16) {
-
+                    
                     HStack {
                         Text("Pending Approval")
                             .font(.title3)
                             .fontWeight(.semibold)
-
+                        
                         Spacer()
-
-                        Button (action: {}) {
+                        
+                        NavigationLink {
+                            AllPendingRequestsView(requestViewModel: requestViewModel)
+                        } label: {
                             Text("See Pending Requests")
                                 .font(.caption)
                         }
                     }
-
+                    
                     VStack(spacing: 16) {
                         if requestViewModel.pendingBorrowings.isEmpty {
                             Text("No pending requests")
                         } else {
-                            List(requestViewModel.pendingBorrowings) { borrowing in
-                                PendingRequestCard(
-                                    roomName: borrowing.room.building,
-                                    requestDate: borrowing.requestDate.formatted(),
-                                    status: borrowing.statusApproval.rawValue
-                                )
+                            LazyVStack(spacing: 16) {
+                                ForEach(requestViewModel.recentPendingBorrowings) { borrowing in
+                                    PendingRequestCard(
+                                        roomName: borrowing.room.building,
+                                        requestDate: borrowing.requestDate.formatted(),
+                                        status: borrowing.statusApproval.rawValue
+                                    )
+                                    .contextMenu {
+                                        Button {
+                                            requestViewModel.selectedBorrowing = borrowing
+                                            requestViewModel.showUpdateSheet = true
+                                        } label: {
+                                            Label("Update", systemImage: "pencil")
+                                        }
+                                        
+                                        // MARK: Delete action
+                                        if viewModel.user != nil {
+                                            Button(role: .destructive) {
+                                                requestViewModel.deleteBorrowing(
+                                                    borrowing: borrowing, user: viewModel.user!,
+                                                    context: context
+                                                )
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            .listStyle(.plain)
                         }
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding(24)
+            .task {
+                if let user = viewModel.user {
+                    requestViewModel.fetchPendingRequests(
+                        user: user,
+                        context: context
+                    )
+                }
+            }
+            .sheet(isPresented: $requestViewModel.showUpdateSheet) {
+                if let borrowing = requestViewModel.selectedBorrowing {
+                    UpdateBorrowingView(viewModel: requestViewModel, borrowing: borrowing)
+                }
+            }
         }
     }
 }

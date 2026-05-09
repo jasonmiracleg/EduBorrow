@@ -11,7 +11,8 @@ struct DashboardView: View {
 
     @State private var selectedTab: Tab = .request
     @EnvironmentObject var viewModel: AuthenticationViewModel
-    @ObservedObject private var requestViewModel: RequestViewModel = RequestViewModel()
+    @ObservedObject private var requestViewModel: RequestViewModel =
+        RequestViewModel()
 
     enum Tab {
         case request
@@ -19,23 +20,18 @@ struct DashboardView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                TabView {
-                    RequestView(requestViewModel: requestViewModel)
-                        .tabItem {
-                            Label("Request", systemImage: "doc.text.fill")
-                        }
-
-                    UserProfileView()
-                        .tabItem {
-                            Label("Profile", systemImage: "person.crop.circle.fill")
-                        }
+        TabView {
+            RequestView(requestViewModel: requestViewModel)
+                .tabItem {
+                    Label("Request", systemImage: "doc.text.fill")
                 }
-                .tint(.blue)
-            }
-            .background(Color(.systemGroupedBackground))
+
+            UserProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle.fill")
+                }
         }
+        .tint(.blue)
     }
 }
 

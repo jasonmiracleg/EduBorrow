@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CreateEquipmentView: View {
 
@@ -14,6 +15,9 @@ struct CreateEquipmentView: View {
     @State private var category: Category = .other
 
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var context
+
+    @StateObject private var viewModel = EquipmentViewModel()
 
     var body: some View {
         Form {
@@ -43,19 +47,17 @@ struct CreateEquipmentView: View {
     }
 
     private func saveEquipment() {
-        guard let stockInt = Int(stock), !equipmentName.isEmpty else {
+        guard let stockInt = Int(stock),
+              !equipmentName.isEmpty else {
             return
         }
 
-        let newEquipment = Equipment(
-            equipmentId: UUID().uuidString,
-            equipmentName: equipmentName,
+        viewModel.addEquipment(
+            name: equipmentName,
             stock: stockInt,
-            category: category
+            category: category,
+            context: context
         )
-
-        // TODO: insert into SwiftData / ViewModel
-        print("Saved:", newEquipment)
 
         dismiss()
     }

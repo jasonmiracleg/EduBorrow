@@ -10,6 +10,7 @@ import Foundation
 
 @Model
 class Borrowing: Identifiable {
+    
     @Attribute(.unique)
     var borrowingId: UUID
     
@@ -39,5 +40,13 @@ class Borrowing: Identifiable {
         self.statusApproval = statusApproval
         self.purpose = purpose
         self.returnTime = returnTime
+    }
+}
+
+extension Borrowing {
+    var equipmentList: [String] {
+        borrowedEquipments.map {
+            "\($0.equipment.equipmentName) x\($0.quantity)"
+        }
     }
 }

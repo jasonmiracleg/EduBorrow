@@ -9,7 +9,6 @@ import SwiftUI
 struct AdminTabView: View {
     var body: some View {
         TabView {
-
             // MARK: - 1. Properties
             PropertiesView()
                 .tabItem {
@@ -20,12 +19,6 @@ struct AdminTabView: View {
             ApprovalView()
                 .tabItem {
                     Label("Approval", systemImage: "checkmark.seal.fill")
-                }
-
-            // MARK: - 3. Profile
-            AdminProfileView()
-                .tabItem {
-                    Label("Profile", systemImage: "person.fill")
                 }
         }
     }

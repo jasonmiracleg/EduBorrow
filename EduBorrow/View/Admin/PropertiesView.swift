@@ -6,11 +6,16 @@
 //
 
 import SwiftUI
-struct PropertiesView: View {
-    @EnvironmentObject var viewModel: AuthenticationViewModel
+import SwiftData
 
-    let sampleEquipments = ["Projector", "Laptop", "Speaker", "Mic"]
-    let sampleRooms = ["Room A", "Room B", "Room C", "Room D"]
+struct PropertiesView: View {
+
+    @EnvironmentObject var authVM: AuthenticationViewModel
+
+    @Environment(\.modelContext) var context
+
+    @StateObject private var equipmentVM = EquipmentViewModel()
+    @StateObject private var roomVM = RoomViewModel()
 
     var body: some View {
         NavigationStack {
@@ -19,6 +24,7 @@ struct PropertiesView: View {
 
                     // MARK: Navigation Cards
                     VStack(spacing: 16) {
+
                         ActionCard(
                             title: "Create Equipment",
                             description: "Add new academic equipment to inventory.",
@@ -44,8 +50,11 @@ struct PropertiesView: View {
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(spacing: 12) {
-                                ForEach(sampleEquipments.shuffled().prefix(3), id: \.self) { item in
-                                    PropertyCard(title: item)
+                                ForEach(equipmentVM.equipments.prefix(5), id: \.equipmentId) { item in
+                                    PropertyCard(
+                                        title: item.equipmentName,
+                                        subtitle: "\(item.equipmentId) • Stock: \(item.stock)"
+                                    )
                                 }
                             }
                         }
@@ -58,8 +67,11 @@ struct PropertiesView: View {
 
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(spacing: 12) {
-                                ForEach(sampleRooms.shuffled().prefix(3), id: \.self) { item in
-                                    PropertyCard(title: item)
+                                ForEach(roomVM.rooms.prefix(5), id: \.id) { room in
+                                    PropertyCard(
+                                        title: "\(room.building) - F\(room.floor)",
+                                        subtitle: "Capacity: \(room.capacity)"
+                                    )
                                 }
                             }
                         }
@@ -71,12 +83,16 @@ struct PropertiesView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        viewModel.logout()
+                        authVM.logout()
                     } label: {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .foregroundColor(.red)
                     }
                 }
+            }
+            .onAppear {
+                equipmentVM.loadEquipment(context: context)
+                roomVM.loadRooms(context: context)
             }
         }
     }

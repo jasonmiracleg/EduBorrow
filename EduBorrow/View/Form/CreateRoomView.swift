@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CreateRoomView: View {
 
@@ -14,6 +15,9 @@ struct CreateRoomView: View {
     @State private var capacity: String = ""
 
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var context
+
+    @StateObject private var viewModel = RoomViewModel()
 
     var body: some View {
         Form {
@@ -45,14 +49,11 @@ struct CreateRoomView: View {
             return
         }
 
-        let newRoom = Room(
+        viewModel.addRoom(
             floor: floor,
             building: building,
-            capacity: capacityInt
-        )
-
-        // TODO: insert into SwiftData / ViewModel
-        print("Saved:", newRoom)
+            capacity: capacityInt,
+            context: context)
 
         dismiss()
     }

@@ -6,16 +6,27 @@
 //
 
 import SwiftUI
+
 struct PropertyCard: View {
+
     let title: String
+    let subtitle: String?
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 8) {
+
             Text(title)
                 .font(.headline)
-                .padding()
+                .lineLimit(1)
+
+            if let subtitle {
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
-        .frame(width: 140, height: 100)
+        .padding()
+        .frame(width: 160, height: 100, alignment: .leading)
         .background(Color.blue.opacity(0.15))
         .cornerRadius(12)
     }

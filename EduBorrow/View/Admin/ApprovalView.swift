@@ -5,12 +5,15 @@
 //  Created by Jason Miracle Gunawan on 09/05/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ApprovalView: View {
 
+    @StateObject var viewModel = RequestViewModel()
     @Environment(\.modelContext) private var context
+    @State private var alertMessage: String?
+    @State private var showAlert = false
 
     @Query(sort: \Borrowing.requestDate, order: .reverse)
     private var allRequests: [Borrowing]
@@ -28,19 +31,46 @@ struct ApprovalView: View {
                         ContentUnavailableView(
                             "No Pending Approvals",
                             systemImage: "checkmark.seal",
-                            description: Text("All requests have been processed.")
+                            description: Text(
+                                "All requests have been processed."
+                            )
                         )
                         .padding(.top, 40)
                     } else {
                         ForEach(pendingRequests) { request in
-                            ApprovalCard(request: request, context: context)
-                                .padding(.horizontal)
+                            ApprovalCard(
+                                request: request,
+                                onApprove: {
+                                    viewModel.approve(
+                                        borrowing: request,
+                                        context: context
+                                    )
+
+                                    alertMessage = "Request approved successfully"
+                                    showAlert = true
+                                },
+                                onReject: {
+                                    viewModel.reject(
+                                        borrowing: request,
+                                        context: context
+                                    )
+
+                                    alertMessage = "Request rejected"
+                                    showAlert = true
+                                }
+                            )
+                            .padding(.horizontal)
                         }
                     }
                 }
                 .padding(.vertical)
             }
             .navigationTitle("Approvals")
+            .alert("Update", isPresented: $showAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(alertMessage ?? "")
+            }
         }
     }
 }

@@ -38,27 +38,23 @@ struct CreateEquipmentView: View {
 
             Section {
                 Button("Save Equipment") {
-                    saveEquipment()
+                    guard let stockInt = Int(stock),
+                          !equipmentName.isEmpty else {
+                        return
+                    }
+
+                    viewModel.addEquipment(
+                        name: equipmentName,
+                        stock: stockInt,
+                        category: category,
+                        context: context
+                    )
+                    
+                    dismiss()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .navigationTitle("Create Equipment")
-    }
-
-    private func saveEquipment() {
-        guard let stockInt = Int(stock),
-              !equipmentName.isEmpty else {
-            return
-        }
-
-        viewModel.addEquipment(
-            name: equipmentName,
-            stock: stockInt,
-            category: category,
-            context: context
-        )
-
-        dismiss()
     }
 }

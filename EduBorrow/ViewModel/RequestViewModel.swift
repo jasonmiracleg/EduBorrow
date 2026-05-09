@@ -12,15 +12,18 @@ import SwiftData
 @MainActor
 final class RequestViewModel: ObservableObject {
 
-    @Published var pendingBorrowings: [Borrowing] = []
-
     private let service = BorrowingService()
 
+    @Published private(set) var borrowings: [Borrowing] = []
+
+    var pendingBorrowings: [Borrowing] {
+        borrowings.filter { $0.statusApproval == .pending }
+    }
+
     var recentPendingBorrowings: [Borrowing] {
-        pendingBorrowings
+        Array(pendingBorrowings
             .sorted { $0.requestDate > $1.requestDate }
-            .prefix(3)
-            .map { $0 }
+            .prefix(3))
     }
 
     // MARK: - CREATE
@@ -33,7 +36,6 @@ final class RequestViewModel: ObservableObject {
         selectedEquipments: [Equipment: Int],
         context: ModelContext
     ) {
-
         service.createBorrowRequest(
             user: user,
             room: room,
@@ -44,50 +46,48 @@ final class RequestViewModel: ObservableObject {
             context: context
         )
 
-        // IMPORTANT: refresh UI after insert
-        fetchPendingRequests(user: user, context: context)
+        fetchAllBorrowings(context: context)
     }
 
-    // MARK: - READ (PENDING)
-    func fetchPendingRequests(
-        user: User,
-        context: ModelContext
-    ) {
-
-        let results = service.fetchPendingBorrowings(
-            user: user,
-            context: context
-        )
-
-        self.pendingBorrowings = results
-    }
-
-    // MARK: - READ (ALL - optional helper)
+    // MARK: - READ
     func fetchAllBorrowings(context: ModelContext) {
-
-        let results = service.fetchAllBorrowings(context: context)
-
-        self.pendingBorrowings = results
+        borrowings = service.fetchAllBorrowings(context: context)
     }
 
-    // MARK: - UPDATE STATUS
-    func updateStatus(
+    // MARK: - APPROVE (NEW SAFE ENTRY POINT)
+    func approve(
         borrowing: Borrowing,
-        newStatus: Approval,
+        context: ModelContext
+    ) {
+        service.approveBorrowing(borrowing, context: context)
+    }
+
+    // MARK: - REJECT (NEW SAFE ENTRY POINT)
+    func reject(
+        borrowing: Borrowing,
+        context: ModelContext
+    ) {
+        service.rejectBorrowing(borrowing, context: context)
+    }
+
+    // MARK: - DELETE
+    func deleteBorrowing(
+        borrowing: Borrowing,
         user: User,
         context: ModelContext
     ) {
-
-        service.updateBorrowingStatus(
-            borrowing: borrowing,
-            newStatus: newStatus,
-            context: context
-        )
-
-        fetchPendingRequests(user: user, context: context)
+        service.deleteBorrowing(borrowing, context: context)
+        fetchAllBorrowings(context: context)
     }
 
-    // MARK: - UPDATE BORROWING
+    // MARK: - SYNC (optional future hook)
+    func sync(user: User, context: ModelContext) {
+        service.finalizeExpiredBorrowings(context: context)
+        service.autoRejectExpiredRequests(context: context)
+        fetchAllBorrowings(context: context)
+    }
+    
+    // MARK: - Update
     func updateBorrowing(
         borrowing: Borrowing,
         room: Room,
@@ -97,6 +97,7 @@ final class RequestViewModel: ObservableObject {
         selectedEquipments: [Equipment: Int],
         context: ModelContext
     ) {
+        
         service.updateBorrowing(
             borrowing: borrowing,
             room: room,
@@ -106,20 +107,5 @@ final class RequestViewModel: ObservableObject {
             selectedEquipments: selectedEquipments,
             context: context
         )
-    }
-
-    // MARK: - DELETE
-    func deleteBorrowing(
-        borrowing: Borrowing,
-        user: User,
-        context: ModelContext
-    ) {
-
-        service.deleteBorrowing(
-            borrowing: borrowing,
-            context: context
-        )
-
-        fetchPendingRequests(user: user, context: context)
     }
 }

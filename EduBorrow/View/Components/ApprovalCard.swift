@@ -5,13 +5,14 @@
 //  Created by Jason Miracle Gunawan on 09/05/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ApprovalCard: View {
-
     let request: Borrowing
-    let context: ModelContext
+
+    let onApprove: () -> Void
+    let onReject: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -71,18 +72,19 @@ struct ApprovalCard: View {
 
             // MARK: Actions
             HStack(spacing: 12) {
+
                 Button {
-                    approve(request)
+                    onApprove()
                 } label: {
-                    Label("Approve", systemImage: "checkmark")
+                    Text("Approve")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button(role: .destructive) {
-                    reject(request)
+                    onReject()
                 } label: {
-                    Label("Reject", systemImage: "xmark")
+                    Text("Reject")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -94,25 +96,5 @@ struct ApprovalCard: View {
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
         )
-    }
-
-    // MARK: Actions
-
-    private func approve(_ request: Borrowing) {
-        request.statusApproval = .approved
-        save()
-    }
-
-    private func reject(_ request: Borrowing) {
-        request.statusApproval = .rejected
-        save()
-    }
-
-    private func save() {
-        do {
-            try context.save()
-        } catch {
-            print("Approval save error: \(error)")
-        }
     }
 }

@@ -22,15 +22,28 @@ struct RequestView: View {
                         Text("EduBorrow")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                        
+
                         Text("Room & Equipment Request")
                             .foregroundColor(.gray)
                     }
+
                     Spacer()
-                    Button(action: {}) {
+
+                    if let user = viewModel.user {
+                        NavigationLink {
+                            AllRequestsView(
+                                requestViewModel: requestViewModel,
+                                user: user
+                            )
+                        } label: {
+                            Image(systemName: "clock.fill")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(.black)
+                        }
+                    } else {
                         Image(systemName: "clock.fill")
-                            .font(Font.system(size: 24, weight: .bold))
-                            .foregroundColor(.black)
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.gray)
                     }
                 }
                 
@@ -86,8 +99,13 @@ struct RequestView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding(24)
             .task {
+                if viewModel.user != nil {
+                    requestViewModel.fetchAllBorrowings(context: context)
+                }
+            }
+            .onAppear {
                 if let user = viewModel.user {
-                    requestViewModel.fetchPendingRequests(
+                    requestViewModel.sync(
                         user: user,
                         context: context
                     )

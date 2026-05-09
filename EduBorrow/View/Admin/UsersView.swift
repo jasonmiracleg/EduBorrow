@@ -13,8 +13,7 @@ struct UsersView: View {
 
     @Environment(\.modelContext) private var modelContext
 
-    @Query(sort: \User.name)
-    private var users: [User]
+    @StateObject private var viewModel = UserViewModel()
 
     @State private var activeSheet: UserSheet?
 
@@ -24,7 +23,7 @@ struct UsersView: View {
 
                 ScrollView {
 
-                    if users.isEmpty {
+                    if viewModel.users.isEmpty {
                         VStack(spacing: 10) {
                             Image(systemName: "person.3")
                                 .font(.largeTitle)
@@ -40,7 +39,7 @@ struct UsersView: View {
                     } else {
                         LazyVStack(spacing: 16) {
 
-                            ForEach(users) { user in
+                            ForEach(viewModel.users) { user in
 
                                 NavigationLink {
                                     UserDetailView(user: user)
@@ -61,7 +60,7 @@ struct UsersView: View {
                                     }
 
                                     Button(role: .destructive) {
-                                        deleteUser(user)
+                                        viewModel.deleteUser(user: user, context: modelContext)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -92,11 +91,10 @@ struct UsersView: View {
                     UserFormView(userToEdit: user)
                 }
             }
+            .onAppear {
+                viewModel.loadUsers(context: modelContext)
+            }
         }
-    }
-
-    private func deleteUser(_ user: User) {
-        modelContext.delete(user)
     }
 }
 

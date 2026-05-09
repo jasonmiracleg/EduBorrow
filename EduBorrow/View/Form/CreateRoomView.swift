@@ -34,27 +34,23 @@ struct CreateRoomView: View {
 
             Section {
                 Button("Save Room") {
-                    saveRoom()
+                    guard let capacityInt = Int(capacity),
+                          !building.isEmpty,
+                          !floor.isEmpty else {
+                        return
+                    }
+
+                    viewModel.addRoom(
+                        floor: floor,
+                        building: building,
+                        capacity: capacityInt,
+                        context: context)
+
+                    dismiss()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .navigationTitle("Create Room")
-    }
-
-    private func saveRoom() {
-        guard let capacityInt = Int(capacity),
-              !building.isEmpty,
-              !floor.isEmpty else {
-            return
-        }
-
-        viewModel.addRoom(
-            floor: floor,
-            building: building,
-            capacity: capacityInt,
-            context: context)
-
-        dismiss()
     }
 }

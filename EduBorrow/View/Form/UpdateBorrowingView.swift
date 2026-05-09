@@ -50,7 +50,7 @@ struct UpdateBorrowingView: View {
                         "Usage Date",
                         selection: $usageDate,
                         in: Date()...,   
-                        displayedComponents: [.date]
+                        displayedComponents: [.date, .hourAndMinute]
                     )
 
                     Stepper(

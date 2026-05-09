@@ -15,15 +15,18 @@ final class RequestViewModel: ObservableObject {
     private let service = BorrowingService()
 
     @Published private(set) var borrowings: [Borrowing] = []
+    @Published var approvalMessage: String?
 
     var pendingBorrowings: [Borrowing] {
         borrowings.filter { $0.statusApproval == .pending }
     }
 
     var recentPendingBorrowings: [Borrowing] {
-        Array(pendingBorrowings
-            .sorted { $0.requestDate > $1.requestDate }
-            .prefix(3))
+        Array(
+            pendingBorrowings
+                .sorted { $0.requestDate > $1.requestDate }
+                .prefix(3)
+        )
     }
 
     // MARK: - CREATE
@@ -55,19 +58,35 @@ final class RequestViewModel: ObservableObject {
     }
 
     // MARK: - APPROVE (NEW SAFE ENTRY POINT)
-    func approve(
-        borrowing: Borrowing,
-        context: ModelContext
-    ) {
-        service.approveBorrowing(borrowing, context: context)
+    func approve(borrowing: Borrowing, context: ModelContext) {
+
+        let success = service.approveBorrowing(borrowing, context: context)
+
+        if success {
+            approvalMessage = "Request approved successfully"
+        } else {
+            switch service.lastApprovalError {
+            case .roomNotAvailable:
+                approvalMessage = "Approval failed: room not available"
+            case .insufficientStock:
+                approvalMessage = "Approval failed: insufficient stock"
+            case .alreadyProcessed:
+                approvalMessage = "Request already processed"
+            case .none:
+                approvalMessage = "Approval failed"
+            }
+        }
     }
 
     // MARK: - REJECT (NEW SAFE ENTRY POINT)
-    func reject(
-        borrowing: Borrowing,
-        context: ModelContext
-    ) {
-        service.rejectBorrowing(borrowing, context: context)
+    func reject(borrowing: Borrowing, context: ModelContext) {
+        let success = service.rejectBorrowing(borrowing, context: context)
+
+        if success {
+            approvalMessage = "Request rejected"
+        } else {
+            approvalMessage = "Cannot reject already processed request"
+        }
     }
 
     // MARK: - DELETE
@@ -86,7 +105,7 @@ final class RequestViewModel: ObservableObject {
         service.autoRejectExpiredRequests(context: context)
         fetchAllBorrowings(context: context)
     }
-    
+
     // MARK: - Update
     func updateBorrowing(
         borrowing: Borrowing,
@@ -97,7 +116,7 @@ final class RequestViewModel: ObservableObject {
         selectedEquipments: [Equipment: Int],
         context: ModelContext
     ) {
-        
+
         service.updateBorrowing(
             borrowing: borrowing,
             room: room,
@@ -107,5 +126,13 @@ final class RequestViewModel: ObservableObject {
             selectedEquipments: selectedEquipments,
             context: context
         )
+    }
+
+    func finishBorrowing(
+        borrowing: Borrowing,
+        context: ModelContext
+    ) {
+        service.finishBorrowing(borrowing, context: context)
+        fetchAllBorrowings(context: context)
     }
 }

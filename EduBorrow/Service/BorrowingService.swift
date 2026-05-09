@@ -21,8 +21,8 @@ final class BorrowingService {
         context: ModelContext
     ) {
 
-        guard usageDate >= Calendar.current.startOfDay(for: Date()) else {
-            print("Cannot create request for past date")
+        guard usageDate >= Date() else {
+            print("Cannot create request for past time")
             return
         }
         
@@ -52,20 +52,25 @@ final class BorrowingService {
     }
 
     // MARK: - APPROVE (ALL RULES HERE)
-    func approveBorrowing(_ borrowing: Borrowing, context: ModelContext) {
+    func approveBorrowing(_ borrowing: Borrowing, context: ModelContext) -> Bool {
 
-        guard borrowing.statusApproval == .pending else { return }
+        guard borrowing.statusApproval == .pending else {
+            lastApprovalError = .alreadyProcessed
+            return false
+        }
 
         // RULE 1: Room availability
         guard isRoomAvailable(borrowing, context: context) else {
             print("Room not available")
-            return
+            lastApprovalError = .roomNotAvailable
+            return false
         }
 
         // RULE 2 & 5: Stock validation
         guard isStockAvailable(borrowing) else {
             print("Insufficient stock")
-            return
+            lastApprovalError = .insufficientStock
+            return false
         }
 
         // APPLY APPROVAL
@@ -75,12 +80,33 @@ final class BorrowingService {
         reduceStock(for: borrowing)
 
         save(context)
+
+        lastApprovalError = nil
+        return true
     }
 
+    enum ApprovalError: String {
+        case alreadyProcessed
+        case roomNotAvailable
+        case insufficientStock
+    }
+
+    private(set) var lastApprovalError: ApprovalError?
+
+
     // MARK: - REJECT
-    func rejectBorrowing(_ borrowing: Borrowing, context: ModelContext) {
+    func rejectBorrowing(_ borrowing: Borrowing, context: ModelContext) -> Bool {
+
+        guard borrowing.statusApproval == .pending else {
+            lastApprovalError = .alreadyProcessed
+            return false
+        }
+
         borrowing.statusApproval = .rejected
         save(context)
+
+        lastApprovalError = nil
+        return true
     }
 
     // MARK: - FINALIZE EXPIRED
@@ -96,6 +122,9 @@ final class BorrowingService {
 
             if endTime < now {
                 borrowing.statusApproval = .finished
+
+                borrowing.returnTime = now
+
                 restoreStock(for: borrowing)
             }
         }
@@ -217,6 +246,18 @@ final class BorrowingService {
                 borrowing.statusApproval = .rejected
             }
         }
+
+        save(context)
+    }
+    
+    func finishBorrowing(_ borrowing: Borrowing, context: ModelContext) {
+
+        guard borrowing.statusApproval == .approved else {
+            print("Only approved borrowings can be finished")
+            return
+        }
+
+        borrowing.statusApproval = .finished
 
         save(context)
     }

@@ -47,10 +47,19 @@ struct UpdateRoomView: View {
                         dismiss()
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .disabled(!isFormValid)
                 }
             }
             .navigationTitle("Update Room")
             .navigationBarTitleDisplayMode(.inline)
         }
+    }
+    
+    private var isFormValid: Bool {
+        guard let capacityInt = Int(capacity) else { return false }
+
+        return !building.trimmingCharacters(in: .whitespaces).isEmpty
+            && !floor.trimmingCharacters(in: .whitespaces).isEmpty
+            && capacityInt > 0
     }
 }

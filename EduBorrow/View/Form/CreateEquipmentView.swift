@@ -53,8 +53,16 @@ struct CreateEquipmentView: View {
                     dismiss()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
+                .disabled(!isFormValid)
             }
         }
         .navigationTitle("Create Equipment")
+    }
+    
+    private var isFormValid: Bool {
+        guard let stockInt = Int(stock) else { return false }
+        
+        return !equipmentName.trimmingCharacters(in: .whitespaces).isEmpty
+            && stockInt > 0
     }
 }

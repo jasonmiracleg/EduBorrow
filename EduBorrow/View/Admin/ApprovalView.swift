@@ -41,12 +41,9 @@ struct ApprovalView: View {
                             ApprovalCard(
                                 request: request,
                                 onApprove: {
-                                    viewModel.approve(
-                                        borrowing: request,
-                                        context: context
-                                    )
+                                    viewModel.approve(borrowing: request, context: context)
 
-                                    alertMessage = "Request approved successfully"
+                                    alertMessage = viewModel.approvalMessage
                                     showAlert = true
                                 },
                                 onReject: {

@@ -5,9 +5,8 @@
 //  Created by Jason Miracle Gunawan on 09/05/26.
 //
 
-
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct AllRequestsView: View {
 
@@ -33,6 +32,7 @@ struct AllRequestsView: View {
             } else {
                 List(requestViewModel.borrowings) { borrowing in
                     VStack(alignment: .leading, spacing: 6) {
+
                         Text(borrowing.room.building)
                             .font(.headline)
 
@@ -43,6 +43,26 @@ struct AllRequestsView: View {
                         Text("Status: \(borrowing.statusApproval.rawValue)")
                             .font(.caption)
                             .foregroundColor(.blue)
+
+                        // MARK: FINISH BUTTON (CONDITIONAL)
+                        if shouldShowFinishButton(for: borrowing) {
+
+                            Button {
+                                requestViewModel.finishBorrowing(
+                                    borrowing: borrowing,
+                                    context: context
+                                )
+                            } label: {
+                                Text("Finish")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.green)
+                                    .cornerRadius(8)
+                            }
+                            .padding(.top, 4)
+                        }
                     }
                 }
             }
@@ -56,4 +76,18 @@ struct AllRequestsView: View {
             )
         }
     }
+}
+
+private func shouldShowFinishButton(for borrowing: Borrowing) -> Bool {
+
+    let calendar = Calendar.current
+
+    let isToday = calendar.isDate(
+        borrowing.usageDate,
+        inSameDayAs: Date()
+    )
+
+    let isApproved = borrowing.statusApproval == .approved
+
+    return isToday && isApproved
 }

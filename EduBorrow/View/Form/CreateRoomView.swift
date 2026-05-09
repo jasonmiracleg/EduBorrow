@@ -44,13 +44,23 @@ struct CreateRoomView: View {
                         floor: floor,
                         building: building,
                         capacity: capacityInt,
-                        context: context)
+                        context: context
+                    )
 
                     dismiss()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
+                .disabled(!isFormValid)
             }
         }
         .navigationTitle("Create Room")
+    }
+    
+    private var isFormValid: Bool {
+        guard let capacityInt = Int(capacity) else { return false }
+
+        return !building.trimmingCharacters(in: .whitespaces).isEmpty
+            && !floor.trimmingCharacters(in: .whitespaces).isEmpty
+            && capacityInt > 0
     }
 }

@@ -50,8 +50,8 @@ struct CreateBorrowingView: View {
                 DatePicker(
                     "Usage Date",
                     selection: $usageDate,
-                    in: Date()...,   
-                    displayedComponents: [.date]
+                    in: Date()...,   // 👈 prevents past dates
+                    displayedComponents: [.date, .hourAndMinute]
                 )
                 
                 Stepper(

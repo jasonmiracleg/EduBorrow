@@ -52,10 +52,18 @@ struct UpdateEquipmentView: View {
                         dismiss()
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .disabled(!isFormValid)
                 }
             }
             .navigationTitle("Update Equipment")
             .navigationBarTitleDisplayMode(.inline)
         }
+    }
+    
+    private var isFormValid: Bool {
+        guard let stockInt = Int(stock) else { return false }
+        
+        return !equipmentName.trimmingCharacters(in: .whitespaces).isEmpty
+            && stockInt > 0
     }
 }

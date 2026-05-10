@@ -26,6 +26,7 @@ struct CreateBorrowingView: View {
     @State private var purpose: String = ""
     
     @State private var selectedEquipments: [Equipment: Int] = [:]
+    @State private var showAlert: Bool = false
     
     var body: some View {
         
@@ -106,7 +107,11 @@ struct CreateBorrowingView: View {
                         context: context
                     )
                     
-                    dismiss()
+                    if viewModel.approvalMessage != nil {
+                        showAlert = true
+                    } else {
+                        dismiss()
+                    }
                 } label: {
                     Text("Submit Request")
                         .frame(maxWidth: .infinity)
@@ -118,6 +123,13 @@ struct CreateBorrowingView: View {
             }
         }
         .navigationTitle("Create Request")
+        .alert("Create Request", isPresented: $showAlert) {
+            Button("OK", role: .cancel) {
+                viewModel.approvalMessage = nil
+            }
+        } message: {
+            Text(viewModel.approvalMessage ?? "")
+        }
     }
 }
 

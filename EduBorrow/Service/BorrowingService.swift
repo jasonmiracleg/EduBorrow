@@ -14,6 +14,7 @@ final class BorrowingService {
         case pastDate
         case invalidDuration
         case emptyPurpose
+        case roomNotAvailable
         case insufficientStock(equipmentName: String)
     }
 
@@ -51,6 +52,21 @@ final class BorrowingService {
             if equipment.stock < quantity {
                 throw CreateError.insufficientStock(equipmentName: equipment.equipmentName)
             }
+        }
+
+        // Validate room availability for the requested interval
+        let tempBorrowing = Borrowing(
+            user: user,
+            room: room,
+            requestDate: Date(),
+            usageDate: usageDate,
+            duration: duration,
+            statusApproval: .pending,
+            purpose: purpose
+        )
+
+        guard isRoomAvailable(tempBorrowing, context: context) else {
+            throw CreateError.roomNotAvailable
         }
 
         let borrowing = Borrowing(
@@ -235,13 +251,34 @@ final class BorrowingService {
         purpose: String,
         selectedEquipments: [Equipment: Int],
         context: ModelContextType
-    ) {
+    ) throws {
 
         guard borrowing.statusApproval == .pending else {
-            print("Cannot edit non-pending borrowing")
-            return
+            // cannot edit non-pending borrowing
+            throw CreateError.pastDate // reuse a generic error (could be improved)
         }
 
+        // Duration validation
+        guard duration > 0 else {
+            throw CreateError.invalidDuration
+        }
+
+        // Purpose validation
+        if purpose.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            throw CreateError.emptyPurpose
+        }
+
+        // Filter equipments
+        let filtered = selectedEquipments.filter { $0.value > 0 }
+
+        // Validate stock for selected equipments
+        for (equipment, qty) in filtered {
+            if equipment.stock < qty {
+                throw CreateError.insufficientStock(equipmentName: equipment.equipmentName)
+            }
+        }
+
+        // Apply updates
         borrowing.room = room
         borrowing.usageDate = usageDate
         borrowing.durationInHours = duration
@@ -250,13 +287,18 @@ final class BorrowingService {
         // reset equipments
         borrowing.borrowedEquipments.removeAll()
 
-        for (equipment, quantity) in selectedEquipments where quantity > 0 {
+        for (equipment, quantity) in filtered {
             let item = BorrowingEquipment(
                 borrowing: borrowing,
                 equipment: equipment,
                 quantity: quantity
             )
             borrowing.borrowedEquipments.append(item)
+        }
+
+        // Check room availability for the updated borrowing
+        guard isRoomAvailable(borrowing, context: context) else {
+            throw CreateError.roomNotAvailable
         }
 
         save(context)

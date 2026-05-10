@@ -59,7 +59,8 @@ final class RequestViewModel: ObservableObject {
                     approvalMessage = "Invalid duration"
                 case .emptyPurpose:
                     approvalMessage = "Purpose is required"
-                // noEquipmentSelected case removed: empty equipment selection is allowed
+                case .roomNotAvailable:
+                    approvalMessage = "Room not available for selected time"
                 case .insufficientStock(let name):
                     approvalMessage = "Insufficient stock for \(name)"
                 }
@@ -135,16 +136,38 @@ final class RequestViewModel: ObservableObject {
         selectedEquipments: [Equipment: Int],
         context: ModelContextType
     ) {
+        do {
+            try service.updateBorrowing(
+                borrowing: borrowing,
+                room: room,
+                usageDate: usageDate,
+                duration: duration,
+                purpose: purpose,
+                selectedEquipments: selectedEquipments,
+                context: context
+            )
+        } catch {
+            if let e = error as? BorrowingService.CreateError {
+                switch e {
+                case .pastDate:
+                    approvalMessage = "Invalid usage date"
+                case .invalidDuration:
+                    approvalMessage = "Invalid duration"
+                case .emptyPurpose:
+                    approvalMessage = "Purpose is required"
+                case .roomNotAvailable:
+                    approvalMessage = "Room not available for selected time"
+                case .insufficientStock(let name):
+                    approvalMessage = "Insufficient stock for \(name)"
+                }
+            } else {
+                approvalMessage = "Failed to update request"
+            }
+            return
+        }
 
-        service.updateBorrowing(
-            borrowing: borrowing,
-            room: room,
-            usageDate: usageDate,
-            duration: duration,
-            purpose: purpose,
-            selectedEquipments: selectedEquipments,
-            context: context
-        )
+        // on success, refresh list
+        fetchAllBorrowings(context: context)
     }
 
     func finishBorrowing(

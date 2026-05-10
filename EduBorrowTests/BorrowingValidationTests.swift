@@ -101,4 +101,43 @@ final class BorrowingValidationTests: XCTestCase {
             XCTAssertTrue(result.isEmpty, "Borrowing requesting more than stock should not be inserted")
         }
     }
+
+    func testCreateBorrowRequest_ShouldRejectWhenRoomNotAvailable() {
+        // Prepare an existing approved borrowing that blocks the same room/time
+        let existingUsage = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+        let existing = Borrowing(
+            user: user,
+            room: room,
+            requestDate: Date(),
+            usageDate: existingUsage,
+            duration: 2,
+            statusApproval: .approved,
+            purpose: "Existing booking"
+        )
+
+        context.insert(existing)
+
+        XCTAssertThrowsError(try service.createBorrowRequest(
+            user: user,
+            room: room,
+            usageDate: existingUsage,
+            duration: 2,
+            purpose: "New booking",
+            selectedEquipments: [:],
+            context: context
+        )) { error in
+            if let e = error as? BorrowingService.CreateError {
+                switch e {
+                case .roomNotAvailable:
+                    break // expected
+                default:
+                    XCTFail("Expected roomNotAvailable, got \(e)")
+                }
+            } else {
+                XCTFail("Unexpected error type: \(error)")
+            }
+        }
+    }
+
+
 }

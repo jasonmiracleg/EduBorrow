@@ -63,10 +63,8 @@ struct AllPendingRequestsView: View {
                     .padding(.vertical, 8)
                 }
                 .navigationTitle("All Pending Requests")
-                .sheet(isPresented: $showUpdateSheet) {
-                    if let borrowing = selectedBorrowing {
-                        UpdateBorrowingView(viewModel: requestViewModel, borrowing: borrowing)
-                    }
+                .sheet(item: $selectedBorrowing) { borrowing in
+                    UpdateBorrowingView(viewModel: requestViewModel, borrowing: borrowing)
                 }
             }
         }

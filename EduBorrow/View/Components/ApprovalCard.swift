@@ -27,6 +27,19 @@ struct ApprovalCard: View {
                     Text(request.room.roomName)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    
+                    // Usage date
+                    Text(request.usageDate.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+
+                    // Purpose / note
+                    if !request.purpose.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text(request.purpose)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
                 }
 
                 Spacer()
